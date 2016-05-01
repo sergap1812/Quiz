@@ -1,0 +1,4 @@
+
+
+    <p>La respuesta <strong><%= answer%></strong> es <%= result %></p>
+    <p> <a href="/show?answer=<%=answer%>"> Volver </a></p>
