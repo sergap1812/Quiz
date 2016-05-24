@@ -18,14 +18,12 @@ exports.load = function(req, res, next, quizId) {
 
 // GET /quizzes
 exports.index = function(req, res, next) {
-	models.Quiz.findAll()
-		.then(function(quizzes) {
-			res.render('quizzes/index.ejs', { quizzes: quizzes});
-		})
-		.catch(function(error) {
-			next(error);
-		});
-};
+	
+	models.Quiz.findAll({where: {question: {$like: "%" + req.query.search + "%"}}}).then(function(quizzes) {
+ 		res.render('quizzes/index.ejs', {quizzes: quizzes});
+ 	}).catch(function(error) {
+ 		next(error);
+
 
 
 // GET /quizzes/:id
