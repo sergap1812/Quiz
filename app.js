@@ -32,6 +32,14 @@ app.use(session({secret: 'Quiz 2016',
 app.use(methodOverride('_method', { methods: ["POST", "GET"]}));
 app.use(express.static(path.join(__dirname, 'public')));
 
+//Helper dinámico
+app.use(function(req, res, next){
+  //Hacer visible rew.session en las vistas 
+  res.locals.session = req.session;
+
+  next();
+});
+
 
 app.use('/', routes);
 
