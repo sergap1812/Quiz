@@ -32,6 +32,17 @@ app.use(session({secret: 'Quiz 2016',
 app.use(methodOverride('_method', { methods: ["POST", "GET"]}));
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+if(app.get('env') === 'production'){
+  app.use(function(req, res, next){
+    if(req.headers['x-forwarded-proto'] !== 'https'){
+      res.redirect('https://' + req.get('Host') + req.url);
+    } else {
+      next()
+    }
+  });
+}
+
 //Helper dinámico
 app.use(function(req, res, next){
   //Hacer visible rew.session en las vistas 
@@ -73,6 +84,8 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
+
+
 
 
 module.exports = app;
