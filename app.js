@@ -17,40 +17,52 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// uncomment after placing your favicon in /public
-app.use(partials());
-app.use(flash());
+// En produccion (Heroku) redirijo las peticiones http a https.
+// Documentacion: http://jaketrent.com/post/https-redirect-node-heroku/
+if (app.get('env') === 'production') {
+  app.use(function(req, res, next) {
+    if (req.headers['x-forwarded-proto'] !== 'https') {
+      res.redirect('https://' + req.get('Host') + req.url);
+    } else { 
+      next() /* Continue to other routes if we're not redirecting */
+    }
+  });
+}
 
+// uncomment after placing your favicon in /public
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(session({secret: 'Quiz 2016',
-                  resave: false,
-                  saveUninitialized: true}));
-app.use(methodOverride('_method', { methods: ["POST", "GET"]}));
+app.use(session({secret: 'Quiz 2016', resave: false, saveUninitialized: true}));
+app.use(methodOverride('_method', {methods: ['POST', 'GET']}));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(partials());
+app.use(flash());
 
-if(app.get('env') === 'production'){
-  app.use(function(req, res, next){
-    if(req.headers['x-forwarded-proto'] !== 'https'){
-      res.redirect('https://' + req.get('Host') + req.url);
-    } else {
-      next()
-    }
-  });
-}
-
-//Helper dinámico
-app.use(function(req, res, next){
-  //Hacer visible rew.session en las vistas 
+// Helper dinámico:
+app.use(function(req, res, next) {
+  // Hace visible req.session en las vistas
   res.locals.session = req.session;
-
   next();
 });
 
+app.use(function(req, res, next) {  
+  if(req.session.user) {
+    var timeout = 120000;
+    if((+(new Date()) - req.session.user.inicio) >= timeout ) {
+      delete req.session.user;
+      next();
+    } else {
+      req.session.user.inicio = +(new Date());
+      next();
+    }
+  } else {
+    next();
+  }
+});
 
 app.use('/', routes);
 
@@ -84,8 +96,6 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
-
-
 
 
 module.exports = app;
