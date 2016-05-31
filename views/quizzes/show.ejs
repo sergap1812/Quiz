@@ -5,10 +5,10 @@
       Pregunta: <%= quiz.question %>
     </p>
 
-    <% if(quizzes[i].Attachment){ %>
-        <img src="<%= quiz.Attachment.url %>" width="50px"/>
+    <% if(quiz.Attachment){ %>
+        <img src="<%= quiz.Attachment.url %>"/>
     <% } else { %>
-        <img src="images/question.png" width="50px" />
+        <img src="/images/question.png" width="50px" />
     <% } %>
 
     <p>
